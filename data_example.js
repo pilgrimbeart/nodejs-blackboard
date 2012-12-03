@@ -16,8 +16,11 @@ var model = mongoose.model('Data', BoardSchema);
 var Data = mongoose.model('Data');
 
 	var i=0;
-	for(i;i<10;i++) {
+	for(i;i<1000;i++) {
 		var data = new Data();
+		data.type = 0;	//
+		data.value = "0" + Math.floor((Math.random()*6)+1); // data.value = "01";	// Client will pull "img/objects/img01.png"
+		console.log('value = '+data.value)
 		data.x=Math.ceil(Math.random()*1000);
 		data.y=Math.ceil(Math.random()*1000);
 		data.save(function(err) {
