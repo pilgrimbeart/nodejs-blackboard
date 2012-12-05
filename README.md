@@ -15,3 +15,8 @@ Nodejs test :P
 ##Info
 
 * Port: 3000 (by default)
+
+# For Joyent Smart Machine, have to do an "export NODE_PATH="/opt/local/bin" 
+
+
+
