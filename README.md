@@ -18,5 +18,6 @@ Nodejs test :P
 
 # For Joyent Smart Machine, have to do an "export NODE_PATH="/opt/local/bin" 
 
+# To install Python socket.io client: sudo easy_install socketIO-client
 
 
