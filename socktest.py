@@ -7,6 +7,7 @@ import time
 import socket, os
 import sys
 import cProfile
+import datetime
 
 #HOST = '37.153.97.105'	# Pilgrim's Joyent SmartMachine "PB1"
 HOST = 'localhost'
@@ -87,6 +88,7 @@ def heartbeat_thread():
         elapsed = time.time() - g_start_time
         timetosleep = max(0, (g_updates+1)*HEARTBEAT_SECS - elapsed)
         g_updates += 1
+        print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S "),
         print g_updates,"updates,",int(elapsed),"secs (",int(g_updates/elapsed),"/sec) timetosleep=",timetosleep
         time.sleep(timetosleep)
 
