@@ -109,12 +109,12 @@ def heartbeat_thread():
             if(burstRun > 1/HEARTBEAT_SECS):	# A dropout is defined as bursting for 1 second without catching-up
                 dropouts += 1
                 burstRun = 0
-                print "DROPOUT ",dropouts
+                print "DROPOUT (",dropouts,"so far)"
                 time.sleep(1)	# Relax for a bit (to give whatever stole our time a chance to sort itself out)
                 print "Resetting effective_start_time from",effective_start_time,
 		effective_start_time = time.time() - g_updates*HEARTBEAT_SECS # We may have been stopped for a long time, so set our "budget" to give us one second's extra grace
                 print "to",effective_start_time
-                print "So we have now lost a total of",effective_start_time-g_start_time,"seconds due to dropouts"
+                print "Since starting we have now lost a total of",effective_start_time-g_start_time,"seconds due to dropouts"
 
 class Namespace(BaseNamespace):
 
