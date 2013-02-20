@@ -82,15 +82,39 @@ def heartbeat_thread():
     # 2) sleep() may not delay at all if passed very small numbers
     # So we use an absolute measure of time, instead of a relative one
     # This does mean that if for some reason we get stalled, we will burst to catch up
+    # and this can cause problems at high loads, because if the server is momentarily disturbed then socktest can fall behind to the point where it never sleeps, in an impossible attempt to catch up.
+    # To prevent this, we spot consecutive sleep(0)s, and if there are too many we reset our target, and call it a "dropout".
     global g_updates, g_start_time
+    effective_start_time = g_start_time
+    burstRun = 0
+    dropouts = 0
     while(1):
+        if(0):	# Test dropout recovery mechanism by causing a dropout
+            t = time.time() - g_start_time
+            if(((t>4) and (t<5)) or ((t>10) and (t<15))):
+                print "TEST: Causing a 1s dropout"
+                time.sleep(1)
+
         heartbeat()
-        elapsed = time.time() - g_start_time
+        elapsed = time.time() - effective_start_time
         timetosleep = max(0, (g_updates+1)*HEARTBEAT_SECS - elapsed)
         g_updates += 1
         print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S "),
         print g_updates,"updates,",int(elapsed),"secs (",int(g_updates/elapsed),"/sec) timetosleep=",timetosleep
         time.sleep(timetosleep)
+        if(timetosleep != 0):
+            burstRun = 0
+        else:
+            burstRun += 1
+            if(burstRun > 1/HEARTBEAT_SECS):	# A dropout is defined as bursting for 1 second without catching-up
+                dropouts += 1
+                burstRun = 0
+                print "DROPOUT ",dropouts
+                time.sleep(1)	# Relax for a bit (to give whatever stole our time a chance to sort itself out)
+                print "Resetting effective_start_time from",effective_start_time,
+		effective_start_time = time.time() - g_updates*HEARTBEAT_SECS # We may have been stopped for a long time, so set our "budget" to give us one second's extra grace
+                print "to",effective_start_time
+                print "So we have now lost a total of",effective_start_time-g_start_time,"seconds due to dropouts"
 
 class Namespace(BaseNamespace):
 
@@ -130,6 +154,11 @@ def main():
     global g_socketIO,g_start_time,g_objects_lock
     g_objects_lock = threading.Lock()
 
+    if(len(sys.argv)<2):
+        print "Usage:",sys.argv[0]," {S|L|SL} (S=speaking, L=listening) - defaults to SL"
+    if(len(sys.argv)==1):
+        sys.argv.append("SL")	# Default arguments
+
     print "Listening to "+HOST+":"+str(PORT)
 
     g_socketIO = SocketIO(HOST, PORT, Namespace)
@@ -138,11 +167,10 @@ def main():
     g_socketIO.emit("adduser",socket.getfqdn()+";"+str(os.getpid()))
 
     g_start_time = time.time()
-    if(len(sys.argv)<2):
-        print "Usage:",sys.argv[0]," S or L or SL"
     if("S" in sys.argv[1]):
         print "Starting speaking"
         thread1 = threading.Thread(target=heartbeat_thread)
+        thread1.daemon = True
         thread1.start()
     if("L" in sys.argv[1]):
         print "Starting listening"
