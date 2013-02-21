@@ -1,0 +1,20 @@
+rm -f node.out socktest.out
+echo Is anything already running?
+ps uax | grep -e coffee -e socktest.py | grep -v grep
+
+sleep 4
+
+echo Starting Node
+# Annotate all output with timestamp
+nohup ./run 2>&1 | awk '{ print strftime("%Y-%m-%d %H:%M:%S"), $0; }' &> node.out &
+
+sleep 5
+
+echo Starting Socktest
+nohup ./socktest.py SL &> socktest.out &
+
+sleep 2
+
+# ps uax | grep -e socktest -e app.coffee | grep -v grep
+top -b -n 1 | head
+
