@@ -12,7 +12,7 @@ import datetime
 #HOST = '37.153.97.105'	# Pilgrim's Joyent SmartMachine "PB1"
 HOST = 'localhost'
 PORT = 3000
-HEARTBEAT_SECS = (1.0 / 500)
+HEARTBEAT_SECS = (1.0 / 250)
 (MAX_X, MAX_Y) = (640,480)
 SPACEQUANT = 24
 

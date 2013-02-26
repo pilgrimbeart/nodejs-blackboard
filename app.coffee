@@ -21,7 +21,7 @@ BoardSchema = new Schema {
 	y     : { type: Number }
 }
 
-db = mongoose.connect 'mongodb://localhost/blackboard'
+db = mongoose.connect 'mongodb://localhost:27017/blackboard, mongodb://localhost:27018/blackboard,mongodb://localhost:27019/blackboard'
 model = mongoose.model 'Data', BoardSchema
 Data = mongoose.model 'Data'
 
